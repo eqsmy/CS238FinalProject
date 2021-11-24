@@ -21,7 +21,7 @@ class HookeJeevesPolicySearch:
         while alpha > epsilon:
             theta_prime = theta
             best = {"i": 0, "sgn": 0, "u": u}
-            for i in range(1, n):
+            for i in range(0, n):
                 for sgn in [-1, 1]:
                     theta_prime[i] = theta[i] + sgn*alpha
                     u_prime = U(pi, theta_prime)
