@@ -4,6 +4,7 @@ from queue import Queue
 from queue import LifoQueue
 # import set
 from collections import OrderedDict
+import random as rand
 
 # Play around with random and slightly better than random polices (greedy) which uses heuristics
 # slightly better is if a card on discard pile will make a meld, then take it. 
@@ -15,8 +16,22 @@ from collections import OrderedDict
 # 5.look ahead with rollouts
 # 6.monte carlo tree search
 
-
 def play_gin():
+    # scoreboard = [0,0,0]
+    points = [0,0]
+    # gins = [0,0]
+    #one wins, two wins, no one wins
+    for _ in range(100000):
+        player_one_hand, player_two_hand, deck, discard_pile, max_deadwood = deal()
+        greedy_vs_random(player_one_hand, player_two_hand, deck, discard_pile, max_deadwood, points)
+    # print(scoreboard)
+    # print(gins)
+    print('greedy: ', points[0], ' points')
+    print('random: ', points[1], ' points')
+
+    # remaining_hand = find_melds(dummy_hand)
+
+def deal():
     suits = {0:'spades', 1:'hearts', 2:'diamonds', 3:'clubs'}
     deck_obj = deck_of_cards.DeckOfCards()
     
@@ -37,6 +52,9 @@ def play_gin():
     # print(player_one_hand)
     discard_pile = LifoQueue(maxsize=30) #discard_pile.qsize(), stack.put() and stack.get
 
+    first_card = deck.get()
+    discard_pile.put(first_card) #first card
+    max_deadwood = min(first_card['rank'], 10)
     
     dummy_hand = [{'suit': 1, 'rank': 10}, 
     {'suit': 3, 'rank': 10}, 
@@ -49,14 +67,71 @@ def play_gin():
     {'suit': 1, 'rank': 13}, 
     {'suit': 1, 'rank': 4}]
 
-    player_one_vs_player_two(player_one_hand, player_two_hand, deck, discard_pile)
-    
-    remaining_hand = find_melds(dummy_hand)
+    return player_one_hand, player_two_hand, deck, discard_pile, max_deadwood
+
     
 
-def player_one_vs_player_two(player_one_hand, player_two_hand, deck, discard_pile):
+def greedy_vs_random(player_one_hand, player_two_hand, deck, discard_pile, max_deadwood, points):
+    #player one is random
+    #player two is greedy
+    rand.seed(a=None,version=2)
+    while (deck.qsize() > 3):
+        # print('iter')
+        #random goes first
+        #draw card from either discard or deck
+        #lay card down 
+        #call mind melds
+        #return gin if remaining hand is empty
+        #knock if deadwood less than max_deadwood
+        #repeat. 
+        
+        #player one draws first
+        player_one_hand.append(deck.get()) if rand.randint(0,1) == 0 else player_one_hand.append(discard_pile.get())        
+        index_to_discard = rand.randint(0, len(player_one_hand) - 1)
+        discard_pile.put(player_one_hand[index_to_discard])
+        del player_one_hand[index_to_discard]
+        player_one_hand = find_melds(player_one_hand)
 
-    return 
+        #check player one gin check
+        if (len(player_one_hand)) == 0:
+            # print("Player One Gins and WINS the game!")
+            points[0] += (25 + calculate_deadwood(player_two_hand))
+            return
+
+        #check player one knock
+        knocking_outcome = check_knock_player_one(player_one_hand, player_two_hand, max_deadwood)
+        if (knocking_outcome[0] == 1 or knocking_outcome[0] == 2): 
+            # scoreboard[knocking_outcome[0] - 1] += 1
+            points[knocking_outcome[0] - 1] += abs(calculate_deadwood(player_one_hand) - calculate_deadwood(player_two_hand))
+            return 
+
+        #player two draws second
+        #player two (greedy) always draws from the deck, for now
+        player_two_hand.append(deck.get()) 
+        index_to_discard = rand.randint(0, len(player_two_hand) - 1)
+        discard_pile.put(player_two_hand[index_to_discard])
+        del player_two_hand[index_to_discard]
+
+        player_two_hand = find_melds(player_two_hand)
+
+        #check player two gin
+        if (len(player_two_hand)) == 0:
+            # scoreboard[1] += 1
+            # gins[1] += 1
+            points[1] += (25 + calculate_deadwood(player_one_hand))
+            # print("Player two Gins and WINS the game!")
+            return
+
+        #check player one knock
+        knocking_outcome = check_knock_player_two(player_one_hand, player_two_hand, max_deadwood)
+        if (knocking_outcome[0] == 1 or knocking_outcome[0] == 2): 
+            # scoreboard[knocking_outcome[0] - 1] += 1
+            points[knocking_outcome[0] - 1] += abs(calculate_deadwood(player_one_hand) - calculate_deadwood(player_two_hand))
+            return 
+    
+    # print('no one wins :(')
+    # scoreboard[2] += 1
+ 
 
 #e.g. [{'suit': 'hearts', 'rank': 10}, {'suit': 'hearts', 'rank': 1}, {'suit': 'spades', 'rank': 2}, 
 def find_melds(hand):
@@ -66,7 +141,7 @@ def find_melds(hand):
     
     melds = []
     # melds = set()
-    print(type(melds))
+    # print(type(melds))
     if len(hand) < 3: return melds 
 
     hand_copy = hand
@@ -135,10 +210,42 @@ def remove(meld, hand):
         hand.remove(item)
     return hand
 
-#flesh out
-def conflict(melds, meld1, meld2):
-    return True
+def calculate_deadwood(hand):
+    hand = find_melds(hand) #for redundancy
+    deadwood = 0
+    for card in hand: deadwood += card['rank']
+    return deadwood
 
+#player one is random and player 2 is greedy
+#only player one is alowed to knock here 
+def check_knock_player_one(hand1, hand2, max_deadwood):
+    one_deadwood = calculate_deadwood(hand1)
+    two_deadwood = calculate_deadwood(hand2)
+    if (one_deadwood <= max_deadwood) and rand.randint(0,1) == 1: 
+        if (one_deadwood < two_deadwood): 
+            # print ('player one knocks with deadwood of ', one_deadwood, ' and BEATs player two with deadwood of ', two_deadwood)
+            return (1, one_deadwood - two_deadwood)
+        else: 
+            # print ('player one knocks with deadwood of ', one_deadwood, ' and LOSES to player two with deadwood of ', two_deadwood)
+            return (2, two_deadwood - one_deadwood)
+    #if both players don't knock, no one wins and we keep going
+    return (0,0)
+
+#only player two is allowed to knock here
+def check_knock_player_two(hand1, hand2, max_deadwood):
+    # print(max_deadwood)
+    one_deadwood = calculate_deadwood(hand1)
+    two_deadwood = calculate_deadwood(hand2)
+    #player two (greedy) will always knock if able 
+    if (two_deadwood <= max_deadwood):
+        if(two_deadwood < one_deadwood) and rand.randint(0,1) == 1:
+            # print ('player two knocks with deadwood of ', two_deadwood, ' and BEATs player one with deadwood of ', one_deadwood)
+            return (2, two_deadwood - one_deadwood)
+        else: 
+            # print ('player two knocks with deadwood of ', two_deadwood, ' and LOSES to player one with deadwood of ', one_deadwood)
+            return (1, one_deadwood - two_deadwood)
+    return (0,0)
+    
 def unique(melds):
     list(OrderedDict.fromkeys(melds))
 
