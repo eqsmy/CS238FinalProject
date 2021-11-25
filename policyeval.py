@@ -15,7 +15,7 @@ class MonteCarloPolicyEvaluation:
         self.d = depth
         self.m = num_samples
 
-    def evaluate(self, pi):
+    def evaluate(self, pi, theta):
         # TODO write rollout policy
         def R(pi): rollout(self.P, np.random(self.b), pi, self.d)
         return np.mean([R(pi) for i in range(0, self.m)])
