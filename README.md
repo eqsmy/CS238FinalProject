@@ -1,5 +1,13 @@
 # CS238FinalProject
 
+## State Space
+
+0: Stock pile
+1: Player 1 card
+2: Player 2 card
+3: Top discard
+4: Non-top discard
+
 ## Example Action Space
 
 (21 possible actions -- from sample on AA228 website)

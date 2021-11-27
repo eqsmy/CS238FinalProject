@@ -19,18 +19,18 @@ class HookeJeevesPolicySearch:
         self.c = reduction_factor
         self.epsilon = term_step_size
 
-    def optimize(self, U):
+    def optimize(self, pi, U):
         theta = self.theta
         theta_prime = np.empty_like(theta)
         alpha, c, epsilon = self.alpha, self.c, self.epsilon
-        u, n = U(theta), len(theta)
+        u, n = U.evaluate(pi, theta), len(theta)
         while alpha > epsilon:
             theta_prime = theta
             best = {"i": 0, "sgn": 0, "u": u}
             for i in range(0, n):
                 for sgn in [-1, 1]:
                     theta_prime[i] = theta[i] + sgn*alpha
-                    u_prime = U(theta_prime)
+                    u_prime = U.evaluate(pi, theta_prime)
                     if u_prime > best["u"]:
                         best = {"i": i, "sgn": sgn, "u": u_prime}
                 theta_prime[i] = theta[i]
@@ -40,5 +40,3 @@ class HookeJeevesPolicySearch:
             else:
                 alpha *= c
         return 0
-    
-hj = HookeJeevesPolicySearch([0,0,0,0], 1, 2, 3)

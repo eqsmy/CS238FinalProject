@@ -238,7 +238,7 @@ def check_knock_player_two(hand1, hand2, max_deadwood):
     two_deadwood = calculate_deadwood(hand2)
     #player two (greedy) will always knock if able 
     if (two_deadwood <= max_deadwood):
-        if(two_deadwood < one_deadwood) and rand.randint(0,1) == 1:
+        if(two_deadwood < one_deadwood):
             # print ('player two knocks with deadwood of ', two_deadwood, ' and BEATs player one with deadwood of ', one_deadwood)
             return (2, two_deadwood - one_deadwood)
         else: 
