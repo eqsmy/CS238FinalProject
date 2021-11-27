@@ -4,11 +4,11 @@
 
 ### Remaining Things for Hooke Jeeves Implementation
 
-[x] Rollout
-[] Step Function (converts state and action into state prime) -> pretty much complete
-[] Reward Function (calculates reward for state) -> will need this to complete the step function
-[] Pi function (turns parameter and state into actions) -> right now implemented as random action, will need to determine our parameters and figure out calculation
-[x] Make it so it actually plays a player 2 -> right now implemented as random
+- [x] Rollout
+- [] Step Function (converts state and action into state prime) -> pretty much complete
+- [] Reward Function (calculates reward for state) -> will need this to complete the step function
+- [] Pi function (turns parameter and state into actions) -> right now implemented as random action, will need to determine our parameters and figure out calculation
+- [x] Make it so it actually plays a player 2 -> right now implemented as random
 
 ## State Space
 
@@ -23,21 +23,21 @@
 
 (21 possible actions -- from sample on AA228 website)
 
-1. Draw from deck, discard card 1 from hand
-2. Draw from deck, discard card 2 from hand
-   .
-   .
-   .
-   10\. Draw from deck, discard card 10 from hand
-   11\. Draw from deck, discard drawn card
-   12\. Pick up top discard card, discard card 1 from hand
-   13\. Pick up top discard card, discard card 2 from hand
-   .
-   .
-   .
-   21\. Pick up top discard card, discard card 10 from hand
-   22\. Knock
-   23\. Gin
+- 1: Draw from deck, discard card 1 from hand
+- 2: Draw from deck, discard card 2 from hand
+  .
+  .
+  .
+- 10: Draw from deck, discard card 10 from hand
+- 11: Draw from deck, discard drawn card
+- 12: Pick up top discard card, discard card 1 from hand
+- 13: Pick up top discard card, discard card 2 from hand
+  .
+  .
+  .
+- 21: Pick up top discard card, discard card 10 from hand
+- 22: Knock
+- 23: Gin
 
 ## Potential Parameters
 
