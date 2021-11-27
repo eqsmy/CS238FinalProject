@@ -24,9 +24,10 @@ class HookeJeevesPolicySearch:
         theta_prime = np.empty_like(theta)
         alpha, c, epsilon = self.alpha, self.c, self.epsilon
         u, n = U.evaluate(pi, theta), len(theta)
+        idx = 1
         while alpha > epsilon:
             theta_prime = theta
-            best = {"i": 0, "sgn": 0, "u": u}
+            best = {"i": -1, "sgn": 0, "u": u}
             for i in range(0, n):
                 for sgn in [-1, 1]:
                     theta_prime[i] = theta[i] + sgn*alpha
@@ -34,9 +35,11 @@ class HookeJeevesPolicySearch:
                     if u_prime > best["u"]:
                         best = {"i": i, "sgn": sgn, "u": u_prime}
                 theta_prime[i] = theta[i]
-            if best["i"] != 0:
+            if best["i"] != -1:
                 theta[best["i"]] += best["sgn"]*alpha
                 u = best["u"]
             else:
                 alpha *= c
-        return 0
+            idx += 1
+            print(theta_prime)
+        return theta
