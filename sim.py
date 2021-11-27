@@ -21,7 +21,7 @@ def play_gin():
     points = [0,0]
     # gins = [0,0]
     #one wins, two wins, no one wins
-    for _ in range(100000):
+    for _ in range(1000):
         player_one_hand, player_two_hand, deck, discard_pile, max_deadwood = deal()
         greedy_vs_random(player_one_hand, player_two_hand, deck, discard_pile, max_deadwood, points)
     # print(scoreboard)
