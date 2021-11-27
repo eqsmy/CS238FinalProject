@@ -1,12 +1,22 @@
 # CS238FinalProject
 
+## Progress
+
+### Remaining Things for Hooke Jeeves Implementation
+
+[x] Rollout
+[] Step Function (converts state and action into state prime) -> pretty much complete
+[] Reward Function (calculates reward for state) -> will need this to complete the step function
+[] Pi function (turns parameter and state into actions) -> right now implemented as random action, will need to determine our parameters and figure out calculation
+[x] Make it so it actually plays a player 2 -> right now implemented as random
+
 ## State Space
 
-0: Stock pile
-1: Player 1 card
-2: Player 2 card
-3: Top discard
-4: Non-top discard
+0. Stock pile
+1. Player 1 card
+2. Player 2 card
+3. Top discard
+4. Non-top discard
 
 ## Example Action Space
 
