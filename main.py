@@ -11,15 +11,31 @@ import numpy as np
 from scipy.stats import norm
 import random
 from helpers import rand_idx, new_start_state
-
+from enum import Enum
 
 # this is where the function goes that turns the parameters into an action
-# s will have the form of a matrix of size 4x13
+# TODO
 def pi(theta, s):
+    # search for melds, retrieve deadwood
+    # if no deadwood, return 23 (gin)
+    # if deadwood less than 10, return 22
+    # if top of discard makes meld, draw it and discard a deadwood
+        # discard lower or higher (parameter)
+    # if top of stock makes meld, draw it and discard a deadwood --> return between 1 and 10
+        # discard lower or higher
     return np.random.randint(1, 22)
 
+class Cards(Enum):
+    STOCK = 0
+    PLAYER_1 = 1
+    PLAYER_2 = 2
+    TOP_DISCARD = 3
+    NON_TOP_DISCARD = 4
+    TOP_STOCK = 5
+
+
 s = new_start_state()
-b, d, n_rollouts = norm(0.3, 0.1), 10, 3
+d, n_rollouts = 10, 3
 U = MonteCarloPolicyEvaluation(s, d, n_rollouts)
 theta, alpha, c, epsilon = [0.5, 0.5], 0.75, 0.75, 0.01
 M = HookeJeevesPolicySearch(theta, alpha, c, epsilon)
