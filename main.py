@@ -17,13 +17,16 @@ from enum import Enum
 # TODO
 def pi(theta, s):
     # search for melds, retrieve deadwood
+    # find melds: input state matrix, output 
+
+
     # if no deadwood, return 23 (gin)
     # if deadwood less than 10, return 22
     # if top of discard makes meld, draw it and discard a deadwood
         # discard lower or higher (parameter)
     # if top of stock makes meld, draw it and discard a deadwood --> return between 1 and 10
         # discard lower or higher
-    return np.random.randint(1, 22)
+    return np.random.randint(1, 24)
 
 class Cards(Enum):
     STOCK = 0
@@ -37,7 +40,7 @@ class Cards(Enum):
 s = new_start_state()
 d, n_rollouts = 10, 3
 U = MonteCarloPolicyEvaluation(s, d, n_rollouts)
-theta, alpha, c, epsilon = [0.5, 0.5], 0.75, 0.75, 0.01
+theta, alpha, c, epsilon = [0.5, 0.5], 0.75, 0.9, 0.01
 M = HookeJeevesPolicySearch(theta, alpha, c, epsilon)
 theta = M.optimize(pi, U)
 print(theta)

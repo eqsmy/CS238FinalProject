@@ -21,7 +21,7 @@
 
 ## Example Action Space
 
-(21 possible actions -- from sample on AA228 website)
+(23 possible actions -- from sample on AA228 website)
 
 - 1: Draw from deck, discard card 1 from hand
 - 2: Draw from deck, discard card 2 from hand
