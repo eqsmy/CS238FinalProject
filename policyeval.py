@@ -23,6 +23,5 @@ class MonteCarloPolicyEvaluation:
         self.m = num_samples
 
     def evaluate(self, pi, theta):
-        start_state = new_start_state()
-        result = [rollout(start_state, pi, self.d, theta) for i in range(0, self.m)]
+        result = [rollout(new_start_state(), pi, self.d, theta) for i in range(0, self.m)]
         return np.mean(result)
