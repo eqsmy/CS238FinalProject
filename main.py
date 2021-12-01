@@ -18,7 +18,7 @@ from enum import Enum
 def pi(theta, s):
     # search for melds, retrieve deadwood
     # find melds: input state matrix, output 
-
+        
 
     # if no deadwood, return 23 (gin)
     # if deadwood less than 10, return 22

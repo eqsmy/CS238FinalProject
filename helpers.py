@@ -8,7 +8,7 @@ def rand_idx(arrays):
     return (arrays[0][rand_int], arrays[1][rand_int])
 
 def new_start_state():
-    s = np.zeros((4, 13))
+    s = np.zeros((4, 13), dtype=np.int64)
     val = Cards.PLAYER_1.value
     for i in [0,1]:
         for i in range(0, 10):
@@ -88,8 +88,57 @@ def pi_random(theta, s):
 def deadwood(s, player):
     return np.random.randint(1, 20)
 
+def find_runs(row, locked):
+    #[0,1,1,1,1,0,0,0,0,0,0]
+    num_runs = 0
+    l = 0 
+    r = 2
+    while r < len(row):
+        #3 or 4 run exists
+        if sum(row[l:r + 1]) == 3: 
+            #check for 4 
+            if r + 1 < len(row) and sum(row[l:r + 2]) == 4:
+                num_runs +=1
+                l += 4; r += 4
+            else: 
+                num_runs +=1
+                l += 3; r += 3
+        else:
+            l += 1; r += 1 
+            
+    return num_runs
+
+
+
+
 def num_melds(s, player):
-    return np.random.randint(1, 4)
+    #assume numbers of interst at 1 and other numbers are 0
+
+    num_melds = 0
+
+    #find sets
+    binary = np.where(s == player, 1, 0) #zero out all values execpt one
+    print(binary)
+    sums = binary.sum(axis=0)
+
+    locked = []
+
+    # set_counts = np.bincount(sums)
+    for i in range(len(sums)):
+        if sums[i] == 3 or sums[i] == 4: 
+            num_melds += 1
+            locked.append(i)  
+    
+    suits, _ = binary.shape
+    for i in range(suits):
+        print('s[i] = ', binary[i])
+        melds_in_row = find_runs(binary[i], locked)
+        print(melds_in_row)
+        num_melds += melds_in_row
+    return num_melds    
+
+def find_melds(s, ):
+    s = [[0,0,],[],[],[]]
 
 # TODO: calculate reward for new s state
 # only called for player 1
@@ -119,3 +168,12 @@ def score(s, a, player):
     # reward if end of deck is reached?
     reward = np.random.randint(20)
     return reward
+
+
+s = new_start_state()
+
+# print(s)
+result = num_melds(s, 1)
+print(result)
+
+

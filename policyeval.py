@@ -2,6 +2,7 @@ import numpy as np
 import random
 from helpers import rand_idx, new_start_state, Cards, player_step, pi_random, end_of_deck
 
+
 def rollout(s, pi, d, theta):
     ret = 0.0
     #for t in range(0, d):
