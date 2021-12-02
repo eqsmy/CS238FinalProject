@@ -1,7 +1,6 @@
 import numpy as np
 from enum import Enum
 
-
 def rand_idx(arrays):
     if len(arrays[0]) == 0: return -1
     rand_int = np.random.randint(len(arrays[0]))
@@ -43,16 +42,13 @@ def end_of_deck(s):
     else:
         return False
 
-
-
-# find s prime from state and action
-def player_step(s, a, player):
+def player_turn(s, a, player):
     stock = np.where(s == Cards.STOCK.value)
     draw = np.where(s == Cards.TOP_STOCK.value)
 
     # end of deck is reached
     if end_of_deck(s):
-        return s, score(s, a, player)
+        return s
         
     draw_idx = (draw[0][0], draw[1][0])
     new_topstock_idx = rand_idx(stock)
@@ -77,13 +73,15 @@ def player_step(s, a, player):
         s[topdiscard_idx] = player # add to hand
         s[discard_idx] = Cards.TOP_DISCARD.value # remove from hand
 
-    if player == Cards.PLAYER_1.value:
-        reward = score(s, a, player)
-        return s, reward
-    return s, 0
+    return s
 
 def pi_random(theta, s):
-    return np.random.randint(1, 24)
+    _, deadwood, _ = hand_info(s, 2)
+    if deadwood == 0:
+        return 23
+    elif deadwood < 10:
+        return np.random.randint(1, 23)
+    return np.random.randint(1, 22)
 
 def deadwood(s, player):
     return np.random.randint(1, 20)
@@ -95,9 +93,6 @@ def in_set(l, r, locked):
     return False
 
 def find_runs(row, locked):
-    # row = [0,1,0,1,1,0,0,0,1,1,1]
-    # print(row)
-    # locked = [9]
     num_runs = 0
     num_cards_in_runs = 0
     l = 0 
@@ -118,11 +113,7 @@ def find_runs(row, locked):
                 l += 3; r += 3
         else:
             l += 1; r += 1 
-    #print(num_runs)
     return num_runs, num_cards_in_runs
-
-
-
 
 def hand_info(s, player):
     #assume numbers of interst at 1 and other numbers are 0
@@ -135,27 +126,20 @@ def hand_info(s, player):
     locked = []
     num_cards_in_melds = 0
 
-
     # set_counts = np.bincount(sums)
     for i in range(len(sums)):
         if sums[i] == 3 or sums[i] == 4: 
             num_cards_in_melds += sums[i]
-            #print(s[:,i])
             binary[:,i] = np.where(binary[:,i] == 1, -1, 0)
-            #print(s)
             num_melds += 1
             locked.append(i)  
     
     suits, _ = binary.shape
     for i in range(suits):
-        #print('s[i] = ', binary[i])
         melds_in_row, num_cards_in_runs = find_runs(binary[i], locked)
         num_cards_in_melds += num_cards_in_runs
-        #print(f"Melds: {melds_in_row}")
         num_melds += melds_in_row
     deadwood = deadwood_value(binary)
-    #print(np.where(binary == 1))
-    #print(f"Num Cards: {num_cards_in_melds}")
     return num_melds, deadwood, num_cards_in_melds
 
 def deadwood_value(binary):
@@ -168,51 +152,54 @@ def deadwood_value(binary):
             value += 10
     return value
 
-# TODO: calculate reward for new s state
-# only called for player 1
-def score(s, a, player):
-    # if new meld is formed, +4?
-        # difference between new state and old state would be positive
-    # if deadwood score goes down then add points
-    
-    p1_nummelds, p1_deadwood, _ = hand_info(s, 1)
-    p2_nummelds, p2_deadwood, _ = hand_info(s, 2)
+# return 1 for win, 0 for draw, -1 for lose
+def play_game(s, pi, theta):
+    while True:
+        # player 1 turn
+        a_1 = pi(theta, s)
+        s = player_turn(s, a_1, 1)
+        #s, _ = player_step(s, a_1, 1)
+        if a_1 == 23:
+            return 1
+        elif a_1 == 22:
+            winner, _ = knock_winner(s)
+            if winner == 1:
+                return 1
+            elif winner == 2:
+                return -1
+        elif end_of_deck(s):
+            return 0
 
-    scale = 100
-    # Gin
-    if a == 23:
-        return scale * (20 + p2_deadwood)
-    # Knock
-    elif a == 22:
-        dif = p2_deadwood - p1_deadwood
-        # player 1 won
-        if dif > 0:
-            return scale * (dif + 10)
-        # player 2 won
-        elif dif <= 0:
-            return scale * (dif - 10)
-    # Otherwise
+        # player 2 turn (random)
+        a_2 = pi_random(theta, s)
+        s = player_turn(s, a_2, 2)
+        #s, _ = player_step(s, a_2, 2)
+        if a_2 == 23:
+            return -1
+        elif a_2 == 22:
+            winner, _ = knock_winner(s)
+            if winner == 2:
+                return -1
+            elif winner == 1:
+                return 1
+        elif end_of_deck(s):
+            return 0
+
+def knock_winner(s):
+    _, p1_deadwood, _ = hand_info(s, 1)
+    _, p2_deadwood, _ = hand_info(s, 2)
+    dif = p2_deadwood - p1_deadwood
+    if dif > 0:
+        return 1, dif + 10
     else:
-        r = 4 * p1_nummelds - 5 * p1_deadwood
-        return r
+        return 2, dif - 10
 
-    # otherwise return 0?
-    # reward if end of deck is reached?
-    reward = np.random.randint(20)
-    return reward
+# positive if player 1 won, negative if player 2 won 
+def gin_points(s, player):
+    _, p1_deadwood, _ = hand_info(s, 1)
+    _, p2_deadwood, _ = hand_info(s, 2)
 
-
-s = new_start_state()
-
-# s = np.zeros((4,13), dtype=np.int8)
-# s[0][1] = 1
-# s[1][1] = 1
-# s[2][1] = 1
-# s[3][1] = 1
-# s[1][1:5] = 1
-# s[2][8] = 1
-
-# print(s)
-#print(result)
-
-
+    if player == 1:
+        return 20 + p2_deadwood
+    else:
+        return -1 * (20 + p1_deadwood)

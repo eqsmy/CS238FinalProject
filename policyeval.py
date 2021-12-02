@@ -1,21 +1,34 @@
 import numpy as np
-import random
-from helpers import rand_idx, new_start_state, Cards, player_step, pi_random, end_of_deck
-
-
-def rollout(s, pi, d, theta):
-    ret = 0.0
-    #for t in range(0, d):
+from helpers import new_start_state, pi_random, end_of_deck, knock_winner, gin_points, player_turn
+    
+# return end of game points
+def full_rollout(s, pi, theta):
     while True:
+        # player 1 turn
         a_1 = pi(theta, s)
-        s, r = player_step(s, a_1, 1)
-        if a_1 == 23 or a_1 == 22 or end_of_deck(s):
-            return ret
-        #ret += P.gamma^(t-1) * r
-        ret += r
+        #s, _ = player_step(s, a_1, 1)
+        s = player_turn(s, a_1, 1)
+        if a_1 == 23:
+            score = gin_points(s, 1)
+            return score
+        elif a_1 == 22:
+            _, points = knock_winner(s)
+            return points
+        elif end_of_deck(s):
+            return 0
+
+        # player 2 turn (random)
         a_2 = pi_random(theta, s)
-        s, _ = player_step(s, a_2, 2)
-    return ret
+        s = player_turn(s, a_2, 2)
+        #s, _ = player_step(s, a_2, 2)
+        if a_2 == 23:
+            score = gin_points(s, 2)
+            return score
+        elif a_2 == 22:
+            _, points = knock_winner(s)
+            return points
+        elif end_of_deck(s):
+            return 0
 
 class MonteCarloPolicyEvaluation:
     def __init__(self, initial_state, depth, num_samples):
@@ -25,6 +38,5 @@ class MonteCarloPolicyEvaluation:
 
     def evaluate(self, pi, theta):
         #start_state = new_start_state()
-        result = [rollout(new_start_state(), pi, self.d, theta) for i in range(0, self.m)]
-        print(np.mean(result))
+        result = [full_rollout(new_start_state(), pi, theta) for i in range(0, self.m)]
         return np.mean(result)

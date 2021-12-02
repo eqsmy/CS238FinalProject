@@ -1,15 +1,3 @@
-# TODO: write utility function U
-# TODO: implement for our problem
-# TODO: test this with dummy data for our problem
-
-# good example of implementation on page 213
-
-# QUESTIONS
-# will we even have a policy (state -> action mapping) or just parameters (theta)?
-# having a policy would mean we need to have an action designated for each state
-# can we calculate utility with just parameters and the current state? --> yes should be possible
-# the question is do we want to have / need a full policy or can we just let the parameters drive decisions
-
 import numpy as np
 
 class HookeJeevesPolicySearch:
@@ -41,5 +29,6 @@ class HookeJeevesPolicySearch:
             else:
                 alpha *= c
             idx += 1
-            print(theta_prime)
+            print(theta)
+            print(f"alpha: {alpha}, epsilon: {epsilon}")
         return theta
