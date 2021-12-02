@@ -9,7 +9,7 @@ def rollout(s, pi, d, theta):
     while True:
         a_1 = pi(theta, s)
         s, r = player_step(s, a_1, 1)
-        if a_1 == 23 or a_1 == 22 or end_of_deck(s): # TODO: can change this to if r != 0 once scoring is implemented
+        if a_1 == 23 or a_1 == 22 or end_of_deck(s):
             return ret
         #ret += P.gamma^(t-1) * r
         ret += r
@@ -26,4 +26,5 @@ class MonteCarloPolicyEvaluation:
     def evaluate(self, pi, theta):
         #start_state = new_start_state()
         result = [rollout(new_start_state(), pi, self.d, theta) for i in range(0, self.m)]
+        print(np.mean(result))
         return np.mean(result)
