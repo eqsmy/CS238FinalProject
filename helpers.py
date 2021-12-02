@@ -88,25 +88,36 @@ def pi_random(theta, s):
 def deadwood(s, player):
     return np.random.randint(1, 20)
 
+def in_set(l, r, locked):
+    for i in range(l, r + 1):
+        if i in locked:
+            return True
+    return False
+
 def find_runs(row, locked):
-    #[0,1,1,1,1,0,0,0,0,0,0]
+    # row = [0,1,0,1,1,0,0,0,1,1,1]
+    # print(row)
+    # locked = [9]
     num_runs = 0
+    num_cards_in_runs = 0
     l = 0 
     r = 2
     while r < len(row):
         #3 or 4 run exists
-        if sum(row[l:r + 1]) == 3: 
+        if sum(row[l:r + 1]) == 3 and not in_set(l, r, locked): 
             #check for 4 
             if r + 1 < len(row) and sum(row[l:r + 2]) == 4:
                 num_runs +=1
+                num_cards_in_runs += 4
                 l += 4; r += 4
             else: 
                 num_runs +=1
+                num_cards_in_runs += 3
                 l += 3; r += 3
         else:
             l += 1; r += 1 
-            
-    return num_runs
+    #print(num_runs)
+    return num_runs, num_cards_in_runs
 
 
 
@@ -122,23 +133,24 @@ def num_melds(s, player):
     sums = binary.sum(axis=0)
 
     locked = []
+    num_cards_in_melds = 0
 
     # set_counts = np.bincount(sums)
     for i in range(len(sums)):
         if sums[i] == 3 or sums[i] == 4: 
+            num_cards_in_melds += sums[i]
             num_melds += 1
             locked.append(i)  
     
     suits, _ = binary.shape
     for i in range(suits):
         print('s[i] = ', binary[i])
-        melds_in_row = find_runs(binary[i], locked)
-        print(melds_in_row)
+        melds_in_row, num_cards_in_runs = find_runs(binary[i], locked)
+        num_cards_in_melds += num_cards_in_runs
+        print(f"Melds: {melds_in_row}")
         num_melds += melds_in_row
+    print(f"Num Cards: {num_cards_in_melds}")
     return num_melds    
-
-def find_melds(s, ):
-    s = [[0,0,],[],[],[]]
 
 # TODO: calculate reward for new s state
 # only called for player 1
@@ -171,6 +183,14 @@ def score(s, a, player):
 
 
 s = new_start_state()
+
+# s = np.zeros((4,13), dtype=np.int8)
+# s[0][1] = 1
+# s[1][1] = 1
+# s[2][1] = 1
+# s[3][1] = 1
+# s[1][1:5] = 1
+# print(s)
 
 # print(s)
 result = num_melds(s, 1)
