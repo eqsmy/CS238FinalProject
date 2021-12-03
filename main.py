@@ -33,25 +33,23 @@ def pi(theta, s):
     hand_idx = np.where(s == Cards.PLAYER_1.value)
     for i in hand_idx[0]:
         s_prime = player_turn(s, i+12, 1)
-        #s_prime, _ = player_step(s, i+12, 1)
         _, d_prime, _ = hand_info(s_prime, 1)
-        if stock < theta[2]:
-            if d_prime - deadwood < 0 and d_prime - deadwood < theta[3]:
+        if stock < 10:
+            if d_prime - deadwood < 0 and 1/(d_prime - deadwood) < theta[3]:
                 return i + 12
         else:
-            if d_prime - deadwood < 0 and d_prime - deadwood < theta[4]:
+            if d_prime - deadwood < 0 and 1/(d_prime - deadwood) < theta[4]:
                 return i + 12
     
     top_stock_idx = np.where(s == Cards.TOP_STOCK.value)
     for i in hand_idx[0]:
         s_prime = player_turn(s, i+1, 1)
-        #s_prime, _ = player_step(s, i+1, 1)
         _, d_prime, _ = hand_info(s_prime, 1)
-        if stock < theta[5]:
-            if d_prime - deadwood < 0 and d_prime - deadwood < theta[6]:
+        if stock < 10:
+            if d_prime - deadwood < 0 and 1/(d_prime - deadwood) < theta[6]:
                 return i + 1
         else:
-            if d_prime - deadwood < 0 and d_prime - deadwood < theta[7]:
+            if d_prime - deadwood < 0 and 1/(d_prime - deadwood) < theta[7]:
                 return i + 1
 
     return 11
@@ -60,7 +58,7 @@ s = new_start_state()
 d, n_rollouts = 5, 5
 U = MonteCarloPolicyEvaluation(s, d, n_rollouts)
 
-theta, alpha, c, epsilon = np.full(8, 0.5), 0.75, 0.9, 0.1
+theta, alpha, c, epsilon = np.full(8, 0.5), 0.75, 0.95, 0.1
 M = HookeJeevesPolicySearch(theta, alpha, c, epsilon)
 theta = M.optimize(pi, U)
 print(theta)

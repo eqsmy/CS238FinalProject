@@ -12,10 +12,10 @@ def full_rollout(s, pi, theta):
             score = gin_points(s, 1)
             return score
         elif a_1 == 22:
-            _, points = knock_winner(s)
+            _, points = knock_winner(s, 1)
             return points
         elif end_of_deck(s):
-            return 0
+            return -5
 
         # player 2 turn (random)
         a_2 = pi_random(theta, s)
@@ -25,10 +25,10 @@ def full_rollout(s, pi, theta):
             score = gin_points(s, 2)
             return score
         elif a_2 == 22:
-            _, points = knock_winner(s)
+            _, points = knock_winner(s, 2)
             return points
         elif end_of_deck(s):
-            return 0
+            return -5
 
 class MonteCarloPolicyEvaluation:
     def __init__(self, initial_state, depth, num_samples):

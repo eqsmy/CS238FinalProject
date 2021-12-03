@@ -80,7 +80,7 @@ def pi_random(theta, s):
     if deadwood == 0:
         return 23
     elif deadwood < 10:
-        return np.random.randint(1, 23)
+        return 22
     return np.random.randint(1, 22)
 
 def deadwood(s, player):
@@ -162,7 +162,7 @@ def play_game(s, pi, theta):
         if a_1 == 23:
             return 1
         elif a_1 == 22:
-            winner, _ = knock_winner(s)
+            winner, _ = knock_winner(s, 1)
             if winner == 1:
                 return 1
             elif winner == 2:
@@ -177,7 +177,7 @@ def play_game(s, pi, theta):
         if a_2 == 23:
             return -1
         elif a_2 == 22:
-            winner, _ = knock_winner(s)
+            winner, _ = knock_winner(s, 2)
             if winner == 2:
                 return -1
             elif winner == 1:
@@ -185,14 +185,24 @@ def play_game(s, pi, theta):
         elif end_of_deck(s):
             return 0
 
-def knock_winner(s):
+def knock_winner(s, player):
     _, p1_deadwood, _ = hand_info(s, 1)
     _, p2_deadwood, _ = hand_info(s, 2)
     dif = p2_deadwood - p1_deadwood
     if dif > 0:
-        return 1, dif + 10
+        # player 1 won and knocked
+        if player == 1:
+            return 1, dif
+        # player 1 won but player 2 knocked
+        else:
+            return 1, dif + 10
     else:
-        return 2, dif - 10
+        # player 2 won and knocked
+        if player == 2:
+            return 2, dif
+        # player 2 won but player 1 knocked
+        else:
+            return 2, dif - 10
 
 # positive if player 1 won, negative if player 2 won 
 def gin_points(s, player):
@@ -203,3 +213,18 @@ def gin_points(s, player):
         return 20 + p2_deadwood
     else:
         return -1 * (20 + p1_deadwood)
+
+print()
+print("Example Starting State:")
+print("       A   2   3   4   5   6   7   8   9  10   J   Q   K")
+print()
+s = new_start_state()
+suits = ["C", "D", "H", "S"]
+i = 0
+for row in s:
+    print(suits[i], end="      ")
+    for r in row:
+        print(r, end="   ")
+    print()
+    i += 1
+print()
