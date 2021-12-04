@@ -37,7 +37,7 @@ def end_of_deck(s):
     draw = np.where(s == Cards.TOP_STOCK.value)
 
     # end of deck is reached
-    if len(draw[0]) == 0 or len(stock[0]) == 0:
+    if len(stock[0]) == 1:
         return True
     else:
         return False
